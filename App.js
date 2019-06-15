@@ -1,29 +1,42 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
+import React from 'react';
+import LottieView from 'lottie-react-native';
+import {StyleSheet, View, Animated, TouchableOpacity } from 'react-native';
 
-import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      progress: this.props.isLiked ? new Animated.Value(1) : new Animated.Value(0),
+      isLiked: this.props.isLiked
+    };
+  }
 
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
+  manageAnimation = () => {
+    if (this.state.isLiked) {
+      this.setState({ progress: new Animated.Value(0), isLiked: false });
+    } else {
+      Animated.timing(this.state.progress, {
+        toValue: 1,
+      }).start(() => {
+        this.setState({ isLiked: true });
+      });
+    }
+  };
 
-type Props = {};
-export default class App extends Component<Props> {
   render() {
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
+        <TouchableOpacity onPress={() => this.manageAnimation()}>
+          <LottieView
+            ref={animation => {
+              this.animation = animation;
+            }}
+            source={require('./animation.json')}
+            style={styles.animation}
+            progress={this.state.progress}
+            loop={false}
+          />
+        </TouchableOpacity>
       </View>
     );
   }
@@ -36,14 +49,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
+  animation: {
+    width: 150,
   },
 });
